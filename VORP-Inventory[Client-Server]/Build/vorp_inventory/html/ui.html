@@ -45,10 +45,15 @@
         var disabled = false;
         var disabledFunction = null;
         var ready4Action = true;
-
+        let checkxy ;
+        let infoxy ;
         var houseId = 0
+        var hideoutid = 0
         var clanid = 0 
+        var stealid = 0 
         var Containerid = 0 
+        var horseid = 0 
+        var wagonid = 0 
 
 
         function OverSetTitle(title) {
@@ -97,13 +102,14 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/TakeFromHorse", JSON.stringify({
                                         item: itemData,
                                         type: type,
-                                        number: value
+                                        number: value,
+                                        horse : horseid
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);
                                     }
@@ -113,7 +119,8 @@
                             $.post("http://vorp_inventory/TakeFromHorse", JSON.stringify({
                                 item: itemData,
                                 type: itemData.type,
-                                number: 1
+                                number: 1,
+                                horse : horseid
                             }));
                         }
                     } else if (type === "cart" && itemInventory === "second") {
@@ -129,22 +136,26 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/TakeFromCart", JSON.stringify({
                                         item: itemData,
                                         type: type,
+                                        wagon : wagonid,
                                         number: value
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);	//500
                                     }
+
+
                                 }
                             });
                         } else {
                             $.post("http://vorp_inventory/TakeFromCart", JSON.stringify({
                                 item: itemData,
                                 type: itemData.type,
+                                wagon : wagonid,
                                 number: 1
                             }));
                         }
@@ -161,7 +172,7 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/TakeFromHouse", JSON.stringify({
@@ -172,6 +183,7 @@
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);	
                                     }
+
                                 }
                             });
                         } else {
@@ -180,6 +192,41 @@
                                 type: itemData.type,
                                 number: 1,
                                 house: houseId
+                            }));
+                        }
+                    } else if (type === "hideout" && itemInventory === "second") {
+                        disableInventory(500);
+                        if (itemData.type != "item_weapon") {
+                            dialog.prompt({
+                                title: "Quantity",
+                                button: "Accept",
+                                required: true,
+                                item: itemData,
+                                type: itemData.type,
+                                input: {
+                                    type: "number"
+                                },
+                                validate: function(value, item, type) {
+                                    if(ready4Action === true && value > 0){	
+                                        ready4Action = false;
+                                    console.log("Item: " + item.label + " Quantity:" + value)
+                                    $.post("http://vorp_inventory/TakeFromHideout", JSON.stringify({
+                                        item: itemData,
+                                        type: type,
+                                        number: value,
+                                        hideout: hideoutId
+                                    }));
+                                    setTimeout(function(){ ready4Action = true; }, 3000);	
+                                    }
+
+                                }
+                            });
+                        } else {
+                            $.post("http://vorp_inventory/TakeFromHideout", JSON.stringify({
+                                item: itemData,
+                                type: itemData.type,
+                                number: 1,
+                                hideout: hideoutId
                             }));
                         }
                     } else if (type === "clan" && itemInventory === "second") {
@@ -195,7 +242,7 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/TakeFromClan", JSON.stringify({
@@ -206,6 +253,7 @@
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);	
                                     }
+
                                 }
                             });
                         } else {
@@ -216,7 +264,7 @@
                                 clan: clanid
                             }));
                         }
-                    } else if (type === "Container" && itemInventory === "second") {
+                    }else if (type === "steal" && itemInventory === "second") {
                         disableInventory(500);
                         if (itemData.type != "item_weapon") {
                             dialog.prompt({
@@ -229,7 +277,42 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
+                                        ready4Action = false;
+                                    console.log("Item: " + item.label + " Quantity:" + value)
+                                    $.post("http://vorp_inventory/TakeFromsteal", JSON.stringify({
+                                        item: itemData,
+                                        type: type,
+                                        number: value,
+                                        steal: stealid
+                                    }));
+                                    setTimeout(function(){ ready4Action = true; }, 3000);	
+                                    }
+
+                                }
+                            });
+                        } else {
+                            $.post("http://vorp_inventory/TakeFromsteal", JSON.stringify({
+                                item: itemData,
+                                type: itemData.type,
+                                number: 1,
+                                steal: stealid
+                            }));
+                        }
+                    }else if (type === "Container" && itemInventory === "second") {
+                        disableInventory(500);
+                        if (itemData.type != "item_weapon") {
+                            dialog.prompt({
+                                title: "Quantity",
+                                button: "Accept",
+                                required: true,
+                                item: itemData,
+                                type: itemData.type,
+                                input: {
+                                    type: "number"
+                                },
+                                validate: function(value, item, type) {
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/TakeFromContainer", JSON.stringify({
@@ -240,6 +323,7 @@
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);	
                                     }
+
                                 }
                             });
                         } else {
@@ -260,7 +344,6 @@
                     itemInventory = ui.draggable.data("inventory");
 
                     console.log(itemData.label)
-
                     if (type === "horse" && itemInventory === "main") {
                         disableInventory(500);
                         if (itemData.type != "item_weapon") {
@@ -274,23 +357,26 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/MoveToHorse", JSON.stringify({
                                         item: itemData,
                                         type: type,
-                                        number: value
+                                        number: value,
+                                        horse : horseid
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);
                                     }  
+
                                 }
                             });
                         } else {
                             $.post("http://vorp_inventory/MoveToHorse", JSON.stringify({
                                 item: itemData,
                                 type: itemData.type,
-                                number: 1
+                                number: 1,
+                                horse : horseid
                             }));
                         }
 
@@ -307,12 +393,13 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/MoveToCart", JSON.stringify({
                                         item: itemData,
                                         type: type,
+                                        wagon : wagonid,
                                         number: value
                                     }));
                                     setTimeout(function(){ ready4Action = true; }, 3000);
@@ -323,6 +410,7 @@
                             $.post("http://vorp_inventory/MoveToCart", JSON.stringify({
                                 item: itemData,
                                 type: itemData.type,
+                                wagon : wagonid,
                                 number: 1
                             }));
                         }
@@ -340,7 +428,7 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/MoveToHouse", JSON.stringify({
@@ -361,6 +449,40 @@
                                 house: houseId
                             }));
                         }
+                    } else if (type === "hideout" && itemInventory === "main") {
+                        disableInventory(500);
+                        if (itemData.type != "item_weapon") {
+                            dialog.prompt({
+                                title: "Quantity",
+                                button: "Accept",
+                                required: true,
+                                item: itemData,
+                                type: itemData.type,
+                                input: {
+                                    type: "number"
+                                },
+                                validate: function(value, item, type) {
+                                    if(ready4Action === true && value > 0){	
+                                        ready4Action = false;
+                                    console.log("Item: " + item.label + " Quantity:" + value)
+                                    $.post("http://vorp_inventory/MoveToHideout", JSON.stringify({
+                                        item: itemData,
+                                        type: type,
+                                        number: value,
+                                        hideout: hideoutId
+                                    }));
+                                    setTimeout(function(){ ready4Action = true; }, 3000);
+                                    }
+                                }
+                            });
+                        } else {
+                            $.post("http://vorp_inventory/MoveToHideout", JSON.stringify({
+                                item: itemData,
+                                type: itemData.type,
+                                number: 1,
+                                hideout: hideoutId
+                            }));
+                        }
 
                     } else if (type === "clan" && itemInventory === "main") {
                         disableInventory(500);
@@ -375,7 +497,7 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/MoveToClan", JSON.stringify({
@@ -397,6 +519,41 @@
                             }));
                         }
 
+                    }else if (type === "steal" && itemInventory === "main") {
+                        disableInventory(500);
+                        if (itemData.type != "item_weapon") {
+                            dialog.prompt({
+                                title: "Quantity",
+                                button: "Accept",
+                                required: true,
+                                item: itemData,
+                                type: itemData.type,
+                                input: {
+                                    type: "number"
+                                },
+                                validate: function(value, item, type) {
+                                    if(ready4Action === true && value > 0){	
+                                        ready4Action = false;
+                                    console.log("Item: " + item.label + " Quantity:" + value)
+                                    $.post("http://vorp_inventory/MoveTosteal", JSON.stringify({
+                                        item: itemData,
+                                        type: type,
+                                        number: value,
+                                        steal: stealid
+                                    }));
+                                    setTimeout(function(){ ready4Action = true; }, 3000);
+                                    }
+                                }
+                            });
+                        } else {
+                            $.post("http://vorp_inventory/MoveTosteal", JSON.stringify({
+                                item: itemData,
+                                type: itemData.type,
+                                number: 1,
+                                steal: stealid
+                            }));
+                        }
+
                     } else if (type === "Container" && itemInventory === "main") {
                         disableInventory(500);
                         if (itemData.type != "item_weapon") {
@@ -410,7 +567,7 @@
                                     type: "number"
                                 },
                                 validate: function(value, item, type) {
-                                    if(ready4Action === true){	
+                                    if(ready4Action === true && value > 0){	
                                         ready4Action = false;
                                     console.log("Item: " + item.label + " Quantity:" + value)
                                     $.post("http://vorp_inventory/MoveToContainer", JSON.stringify({
@@ -437,11 +594,17 @@
             });
 
             window.addEventListener("message", function(event) {
+                if (event.data.action == "changecheck") {
+                    checkxy = event.data.check
+                    infoxy = event.data.info
+                    $('#check').html('')
+                    $("#check").append(`<button id='check'>${checkxy}/${infoxy}</button>`);
+                }
                 if (event.data.action == "display") {
                     $("#inventoryHud").fadeIn();
                     $(".controls").remove();
 
-                    $("#inventoryHud").append("<div class='controls'><div class='controls-center'><input type='text' id='search' placeholder='search'/><button id='close'>Close</button></div></div>");
+                    $("#inventoryHud").append(`<div class='controls'><div class='controls-center'><input type='text' id='search' placeholder='search'/><button id='check'>${checkxy} / ${infoxy}</button></div><button id='close'>Close</button></div></div>`);
 
                     $("#search").bind('input', function() {
                         searchFor = $("#search").val().toLowerCase();
@@ -461,13 +624,13 @@
                     if (event.data.type == "horse") {
                         $("#secondInventoryHud").fadeIn();
 
-
+                        horseid = event.data.horseid;
                         HorseSetTitle(event.data.title);
                     }
 
                     if (event.data.type == "cart") {
                         $("#secondInventoryHud").fadeIn();
-
+                        wagonid = event.data.wagonid;
                         HorseSetTitle(event.data.title);
                     }
 
@@ -478,12 +641,26 @@
 
                         houseId = event.data.houseId;
                     }
+                    if (event.data.type == "hideout") {
+                        $("#secondInventoryHud").fadeIn();
+
+                        HorseSetTitle(event.data.title);
+
+                        hideoutId = event.data.hideoutId;
+                    }
                     if (event.data.type == "clan") {
                         $("#secondInventoryHud").fadeIn();
 
                         HorseSetTitle(event.data.title);
 
                         clanid = event.data.clanid;
+                    }
+                    if (event.data.type == "steal") {
+                        $("#secondInventoryHud").fadeIn();
+
+                        HorseSetTitle(event.data.title);
+
+                        stealid = event.data.stealId;
                     }
                     if (event.data.type == "Container") {
                         $("#secondInventoryHud").fadeIn();

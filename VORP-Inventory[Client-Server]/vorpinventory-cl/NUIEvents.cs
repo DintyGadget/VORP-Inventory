@@ -47,7 +47,7 @@ namespace vorpinventory_cl
             EventHandlers["vorp_inventory:CloseInv"] += new Action(CloseInventory);
 
             //HorseModule
-            EventHandlers["vorp_inventory:OpenHorseInventory"] += new Action<string>(OpenHorseInventory);
+            EventHandlers["vorp_inventory:OpenHorseInventory"] += new Action<string,int>(OpenHorseInventory);
             EventHandlers["vorp_inventory:ReloadHorseInventory"] += new Action<string>(ReloadHorseInventory);
 
             API.RegisterNuiCallbackType("TakeFromHorse");
@@ -56,8 +56,18 @@ namespace vorpinventory_cl
             API.RegisterNuiCallbackType("MoveToHorse");
             EventHandlers["__cfx_nui:MoveToHorse"] += new Action<ExpandoObject>(NUIMoveToHorse);
 
+            //Steal
+            EventHandlers["vorp_inventory:OpenstealInventory"] += new Action<string, int>(OpenstealInventory);
+            EventHandlers["vorp_inventory:ReloadstealInventory"] += new Action<string>(ReloadstealInventory);
+
+            API.RegisterNuiCallbackType("TakeFromsteal");
+            EventHandlers["__cfx_nui:TakeFromsteal"] += new Action<ExpandoObject>(NUITakeFromsteal);
+
+            API.RegisterNuiCallbackType("MoveTosteal");
+            EventHandlers["__cfx_nui:MoveTosteal"] += new Action<ExpandoObject>(NUIMoveTosteal);
+
             //CartModule
-            EventHandlers["vorp_inventory:OpenCartInventory"] += new Action<string>(OpenCartInventory);
+            EventHandlers["vorp_inventory:OpenCartInventory"] += new Action<string,int>(OpenCartInventory);
             EventHandlers["vorp_inventory:ReloadCartInventory"] += new Action<string>(ReloadCartInventory);
 
             API.RegisterNuiCallbackType("TakeFromCart");
@@ -75,6 +85,16 @@ namespace vorpinventory_cl
 
             API.RegisterNuiCallbackType("MoveToHouse");
             EventHandlers["__cfx_nui:MoveToHouse"] += new Action<ExpandoObject>(NUIMoveToHouse);
+
+            //HideoutModule
+            EventHandlers["vorp_inventory:OpenHideoutInventory"] += new Action<string, int>(OpenHideoutInventory);
+            EventHandlers["vorp_inventory:ReloadHideoutInventory"] += new Action<string>(ReloadHideoutInventory);
+
+            API.RegisterNuiCallbackType("TakeFromHideout");
+            EventHandlers["__cfx_nui:TakeFromHideout"] += new Action<ExpandoObject>(NUITakeFromHideout);
+
+            API.RegisterNuiCallbackType("MoveToHideout");
+            EventHandlers["__cfx_nui:MoveToHideout"] += new Action<ExpandoObject>(NUIMoveToHideout);
 
             //clan
             EventHandlers["vorp_inventory:OpenClanInventory"] += new Action<string, int>(OpenClanInventory);
@@ -103,7 +123,12 @@ namespace vorpinventory_cl
             await Delay(500);
             LoadInv();
         }
-
+        private async void ReloadstealInventory(string stealInventory)
+        {
+            API.SendNuiMessage(stealInventory);
+            await Delay(500);
+            LoadInv();
+        }
         private async void ReloadClanInventory(string cartInventory)
         {
             API.SendNuiMessage(cartInventory);
@@ -168,12 +193,12 @@ namespace vorpinventory_cl
             InInventory = false;
         }
 
-        private void OpenHorseInventory(string horseName)
+        private void OpenHorseInventory(string horseName, int horseid)
         {
             //"action", "setSecondInventoryItems"
             API.SetNuiFocus(true, true);
 
-            API.SendNuiMessage("{\"action\": \"display\", \"type\": \"horse\", \"title\": \""+ horseName + "\"}");
+            API.SendNuiMessage("{\"action\": \"display\", \"type\": \"horse\", \"title\": \""+ horseName + "\", \"horseid\": " + horseid.ToString() + "}");
             InInventory = true;
             TriggerEvent("vorp_stables:setClosedInv", true);
         }
@@ -190,6 +215,32 @@ namespace vorpinventory_cl
             TriggerServerEvent("vorp_stables:TakeFromHorse", data.ToString());
         }
 
+
+
+
+        private void OpenstealInventory(string stealName, int stealid)
+        {
+            //"action", "setSecondInventoryItems"
+            API.SetNuiFocus(true, true);
+
+            API.SendNuiMessage("{\"action\": \"display\", \"type\": \"steal\", \"title\": \"" + stealName + "\", \"stealId\": " + stealid.ToString() + "}");
+
+            InInventory = true;
+            TriggerEvent("vorp_stables:setClosedInv", true);
+        }
+
+        private void NUIMoveTosteal(ExpandoObject obj)
+        {
+            JObject data = JObject.FromObject(obj);
+            TriggerServerEvent("syn_search:MoveTosteal", data.ToString());
+        }
+
+        private void NUITakeFromsteal(ExpandoObject obj)
+        {
+            JObject data = JObject.FromObject(obj);
+            TriggerServerEvent("syn_search:TakeFromsteal", data.ToString());
+        }
+
         private async void ReloadCartInventory(string cartInventory)
         {
             API.SendNuiMessage(cartInventory);
@@ -197,12 +248,12 @@ namespace vorpinventory_cl
             LoadInv();
         }
 
-        private void OpenCartInventory(string cartName)
+        private void OpenCartInventory(string cartName, int wagonid)
         {
             //"action", "setSecondInventoryItems"
             API.SetNuiFocus(true, true);
 
-            API.SendNuiMessage("{\"action\": \"display\", \"type\": \"cart\", \"title\": \"" + cartName + "\"}");
+            API.SendNuiMessage("{\"action\": \"display\", \"type\": \"cart\", \"title\": \"" + cartName + "\", \"wagonid\": " + wagonid.ToString() + "}");
             InInventory = true;
             TriggerEvent("vorp_stables:setClosedInv", true);
         }
@@ -246,6 +297,35 @@ namespace vorpinventory_cl
         {
             JObject data = JObject.FromObject(obj);
             TriggerServerEvent("vorp_housing:TakeFromHouse", data.ToString());
+        }
+
+        private async void ReloadHideoutInventory(string cartInventory)
+        {
+            API.SendNuiMessage(cartInventory);
+            await Delay(500);
+            LoadInv();
+        }
+
+        private void OpenHideoutInventory(string hideoutName, int hideoutId)
+        {
+            //"action", "setSecondInventoryItems"
+            API.SetNuiFocus(true, true);
+
+            API.SendNuiMessage("{\"action\": \"display\", \"type\": \"hideout\", \"title\": \"" + hideoutName + "\", \"hideoutId\": " + hideoutId.ToString() + "}");
+            InInventory = true;
+            //TriggerEvent("vorp_stables:setClosedInv", true);
+        }
+
+        private void NUIMoveToHideout(ExpandoObject obj)
+        {
+            JObject data = JObject.FromObject(obj);
+            TriggerServerEvent("syn_underground:MoveToHideout", data.ToString());
+        }
+
+        private void NUITakeFromHideout(ExpandoObject obj)
+        {
+            JObject data = JObject.FromObject(obj);
+            TriggerServerEvent("syn_underground:TakeFromHideout", data.ToString());
         }
 
         private void setProcessingPayFalse()
@@ -349,11 +429,11 @@ namespace vorpinventory_cl
                             if (amount > 0 && vorp_inventoryClient.useritems[itemname].getCount() >= amount)
                             {
                                 TriggerServerEvent("vorpinventory:serverGiveItem", itemname, amount, target, 1);
-                                vorp_inventoryClient.useritems[itemname].quitCount(amount);
+                                /*vorp_inventoryClient.useritems[itemname].quitCount(amount);
                                 if (vorp_inventoryClient.useritems[itemname].getCount() == 0)
                                 {
                                     vorp_inventoryClient.useritems.Remove(itemname);
-                                }
+                                }*/
                             }
                         }
                         else
@@ -369,9 +449,9 @@ namespace vorpinventory_cl
                                 }
                                 vorp_inventoryClient.userWeapons.Remove(int.Parse(data2["id"].ToString()));
                             } */
-                        }
+                            }
 
-                        LoadInv();
+                            LoadInv();
                     }
                 }
             }
@@ -439,20 +519,26 @@ namespace vorpinventory_cl
             Dictionary<string, dynamic> aux = Utils.expandoProcessing(obj);
             string itemname = aux["item"];
             string type = aux["type"].ToString();
+
             if (type == "item_money")
             {
                 TriggerServerEvent("vorpinventory:serverDropMoney", double.Parse(aux["number"].ToString()));
             }
             else if (type == "item_standard")
             {
-                if (int.Parse(aux["number"].ToString()) > 0 && vorp_inventoryClient.useritems[itemname].getCount() >= int.Parse(aux["number"].ToString()))
-                {
-                    TriggerServerEvent("vorpinventory:serverDropItem", itemname, int.Parse(aux["number"].ToString()), 1);
-                    vorp_inventoryClient.useritems[itemname].quitCount(int.Parse(aux["number"].ToString()));
-                    //Debug.Write(vorp_inventoryClient.useritems[itemname].getCount().ToString());
-                    if (vorp_inventoryClient.useritems[itemname].getCount() == 0)
+                Debug.Write(aux["number"].ToString());
+                if (aux["number"].ToString() != null && aux["number"].ToString() != "") {
+
+
+                    if (int.Parse(aux["number"].ToString()) > 0 && vorp_inventoryClient.useritems[itemname].getCount() >= int.Parse(aux["number"].ToString()))
                     {
-                        vorp_inventoryClient.useritems.Remove(itemname);
+                        TriggerServerEvent("vorpinventory:serverDropItem", itemname, int.Parse(aux["number"].ToString()), 1);
+                        vorp_inventoryClient.useritems[itemname].quitCount(int.Parse(aux["number"].ToString()));
+                        //Debug.Write(vorp_inventoryClient.useritems[itemname].getCount().ToString());
+                        if (vorp_inventoryClient.useritems[itemname].getCount() == 0)
+                        {
+                            vorp_inventoryClient.useritems.Remove(itemname);
+                        }
                     }
                 }
             }
@@ -484,6 +570,7 @@ namespace vorpinventory_cl
         {
             CloseInv();
             TriggerEvent("vorp_stables:setClosedInv", false);
+            TriggerEvent("syn:closeinv");
         }
 
         [Tick]
@@ -516,6 +603,7 @@ namespace vorpinventory_cl
             Dictionary<string, dynamic> weapon;
             items.Clear();
             gg.Clear();
+            TriggerServerEvent("vorpinventory:check_slots");
             foreach (KeyValuePair<string, ItemClass> userit in vorp_inventoryClient.useritems)
             {
                 item = new Dictionary<string, dynamic>();
